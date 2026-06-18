@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SignalCrowd design system — premium intelligence platform.
+   White canvas, deep navy text, electric blue accents, soft gray surfaces.
+   All colors in HSL. */
+
+@layer base {
+  :root {
+    --background: 210 33% 99%;
+    --foreground: 215 50% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 50% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 50% 12%;
+
+    /* Electric blue primary */
+    --primary: 222 89% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 215 45% 16%;
+
+    --muted: 214 30% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 222 89% 96%;
+    --accent-foreground: 222 89% 40%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 28% 90%;
+    --input: 214 28% 90%;
+    --ring: 222 89% 55%;
+
+    --radius: 0.85rem;
+
+    /* Brand semantic tokens */
+    --navy: 215 55% 11%;
+    --navy-soft: 215 38% 22%;
+    --electric: 222 89% 55%;
+    --electric-bright: 210 100% 60%;
+    --positive: 152 62% 40%;
+    --positive-soft: 152 55% 94%;
+    --negative: 358 70% 54%;
+    --negative-soft: 358 70% 96%;
+    --premium: 38 92% 50%;
+    --premium-soft: 40 90% 95%;
+    --violet: 262 70% 58%;
+
+    --sidebar-background: 215 55% 11%;
+    --sidebar-foreground: 214 25% 72%;
+    --sidebar-primary: 222 89% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 40% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 35% 18%;
+    --sidebar-ring: 222 89% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+  }
+}
+
+@layer components {
+  .font-serif-display {
+    font-family: "Instrument Serif", Georgia, serif;
+  }
+
+  .font-mono-num {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-feature-settings: "tnum";
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Premium gradient text */
+  .text-gradient-electric {
+    background: linear-gradient(100deg, hsl(var(--electric)) 0%, hsl(var(--electric-bright)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-border bg-card;
+    box-shadow: 0 1px 2px hsl(215 50% 12% / 0.04), 0 4px 16px hsl(215 50% 12% / 0.04);
+  }
+
+  .surface-card-hover {
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .surface-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px hsl(215 50% 12% / 0.1);
+    border-color: hsl(var(--primary) / 0.4);
+  }
+
+  .grid-dots {
+    background-image: radial-gradient(hsl(215 30% 70% / 0.18) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .hero-glow {
+    background:
+      radial-gradient(60% 50% at 75% 10%, hsl(var(--electric) / 0.16) 0%, transparent 60%),
+      radial-gradient(50% 50% at 10% 90%, hsl(var(--violet) / 0.1) 0%, transparent 55%);
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.7s ease both;
+  }
+  .animate-pulse-dot {
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  .animate-ticker {
+    animation: ticker 40s linear infinite;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Scrollbar polish */
+  .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(215 20% 80%); border-radius: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
