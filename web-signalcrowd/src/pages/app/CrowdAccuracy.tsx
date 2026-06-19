@@ -1,130 +1,96 @@
+import { Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader, UpgradeTeaser } from "@/components/ui-kit/Primitives";
+import { PageHeader, SectionTitle, UpgradeTeaser, ProgressBar } from "@/components/ui-kit/Primitives";
 import { categoryAccuracy } from "@/data/mock";
-import { GradeBadge, Delta } from "@/components/signal/SignalBadges";
-import { CheckCircle2, XCircle, Bell, Target, AlertTriangle, Activity, Crosshair } from "lucide-react";
-
-const bigCards = [
-  { label: "Overall Crowd Accuracy", value: "72.8", suffix: "/ 100", sub: "The crowd has been directionally accurate on 72.8% of resolved forecasts.", icon: Target, accent: "pos" },
-  { label: "Crowd Overconfidence", value: "18", suffix: "%", sub: "How often the crowd assigns high confidence to outcomes that fail.", icon: AlertTriangle, accent: "neg" },
-  { label: "Crowd Underreaction", value: "24", suffix: "%", sub: "How often the crowd is slow to update when new signals emerge.", icon: Activity, accent: "neutral" },
-  { label: "Contrarian Opportunity", value: "41", suffix: "/ 100", sub: "Areas where the crowd may be too confident, emotional, or unsupported.", icon: Crosshair, accent: "violet" },
-] as const;
-
-const rightExamples = [
-  "Housing supply / demand forecasts",
-  "Enterprise AI adoption",
-  "Consumer spending direction",
-  "Interest-rate expectations when trend data confirms movement",
-];
-const wrongExamples = [
-  "Extreme crypto price targets",
-  "Geopolitical shocks",
-  "Viral technology hype",
-  "Celebrity / company rumors",
-  "Overly long-dated predictions with unclear resolution",
-];
-const wrongAlerts = [
-  "High confidence with low historical accuracy",
-  "Search interest rising faster than forecast quality",
-  "Expert forecasters disagreeing with retail users",
-  "One-sided crowd probability without supporting validation data",
-  "Sudden hype spike without credible catalyst",
-];
+import { Target, AlertTriangle, TrendingUp, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function CrowdAccuracy() {
   return (
     <AppLayout>
       <PageHeader
         eyebrow="Crowd Accuracy"
-        title="When is the crowd right — and when is it wrong?"
-        subtitle="SignalCrowd measures not just what people believe, but whether collective belief has historically been accurate."
+        title="When is the seller crowd right — and when is it wrong?"
+        subtitle="Track which categories and products the crowd forecasts most accurately. Use historical accuracy to weight your decisions. Demo data shown."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {bigCards.map((c) => {
-          const Icon = c.icon;
-          const color = c.accent === "pos" ? "text-positive" : c.accent === "neg" ? "text-negative" : c.accent === "violet" ? "text-violet" : "text-navy";
-          return (
-            <div key={c.label} className="surface-card p-5">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary"><Icon className={`h-5 w-5 ${color}`} /></div>
-              <p className="text-sm font-medium text-muted-foreground">{c.label}</p>
-              <p className="mt-1 font-mono-num text-3xl font-bold text-navy">{c.value}<span className="ml-1 text-base font-normal text-muted-foreground">{c.suffix}</span></p>
-              <p className="mt-2 text-xs text-muted-foreground">{c.sub}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Category table */}
-      <div className="mt-8">
-        <h2 className="mb-4 text-lg font-bold text-navy">Accuracy by Category</h2>
-        <div className="surface-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead>
-                <tr className="border-b border-border bg-secondary/40 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <th className="px-5 py-3">Category</th>
-                  <th className="px-5 py-3 text-right">Accuracy</th>
-                  <th className="px-5 py-3 text-right">Overconfidence</th>
-                  <th className="px-5 py-3 text-right">Underreaction</th>
-                  <th className="px-5 py-3 text-center">Trends</th>
-                  <th className="px-5 py-3 text-center">Grade</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categoryAccuracy.map((c) => (
-                  <tr key={c.category} className="border-b border-border last:border-0 hover:bg-secondary/30">
-                    <td className="px-5 py-3.5 font-semibold text-navy">{c.category}</td>
-                    <td className="px-5 py-3.5 text-right font-mono-num font-bold text-navy">{c.accuracy}%</td>
-                    <td className="px-5 py-3.5 text-right font-mono-num text-negative">{c.overconfidence}%</td>
-                    <td className="px-5 py-3.5 text-right font-mono-num text-muted-foreground">{c.underreaction}%</td>
-                    <td className="px-5 py-3.5 text-center text-navy-soft">{c.validation}</td>
-                    <td className="px-5 py-3.5 text-center"><GradeBadge grade={c.grade} className="!px-1.5 !py-0 !text-xs" /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Overview cards */}
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Overall Accuracy", value: "72.8%", color: "text-positive", icon: Target },
+          { label: "Best Category", value: "Beauty (76%)", color: "text-positive", icon: TrendingUp },
+          { label: "Weakest Category", value: "Viral Gadgets (58%)", color: "text-negative", icon: AlertTriangle },
+          { label: "Overconfidence", value: "18% avg", color: "text-premium", icon: ShieldCheck },
+        ].map(c => (
+          <div key={c.label} className="surface-card p-4 text-center">
+            <c.icon className={`mx-auto h-5 w-5 ${c.color}`} />
+            <p className="mt-2 font-mono-num text-2xl font-bold text-navy">{c.value}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{c.label}</p>
           </div>
+        ))}
+      </div>
+
+      {/* Category accuracy table */}
+      <div className="surface-card overflow-hidden mb-8">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-secondary/40">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Category</th>
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Accuracy</th>
+                <th className="hidden px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground md:table-cell">Overconfidence</th>
+                <th className="hidden px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground md:table-cell">Underreact</th>
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Validation</th>
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Grade</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {categoryAccuracy.map(row => (
+                <tr key={row.category} className="hover:bg-secondary/30">
+                  <td className="px-4 py-3 font-semibold text-navy">{row.category}</td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <ProgressBar value={row.accuracy} color="hsl(var(--electric))" className="w-16" />
+                      <span className="font-mono-num text-xs font-bold text-navy w-10">{row.accuracy}%</span>
+                    </div>
+                  </td>
+                  <td className="hidden px-4 py-3 text-center font-mono-num text-xs md:table-cell">
+                    <span className={row.overconfidence > 30 ? "text-negative" : row.overconfidence > 20 ? "text-premium" : "text-positive"}>{row.overconfidence}%</span>
+                  </td>
+                  <td className="hidden px-4 py-3 text-center font-mono-num text-xs md:table-cell">{row.underreaction}%</td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`text-xs font-semibold ${row.validation === "Strong" ? "text-positive" : row.validation === "Moderate" ? "text-electric" : "text-negative"}`}>{row.validation}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`font-mono-num text-xs font-bold ${row.grade.startsWith("A") ? "text-positive" : row.grade.startsWith("B") ? "text-electric" : "text-negative"}`}>{row.grade}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Right / Wrong */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      {/* Where crowd is right */}
+      <div className="grid gap-4 sm:grid-cols-2 mb-8">
         <div className="surface-card p-6">
-          <div className="mb-4 flex items-center gap-2 text-positive"><CheckCircle2 className="h-5 w-5" /><h3 className="font-bold text-navy">Where the Crowd Is Usually Right</h3></div>
-          <ul className="space-y-2.5">
-            {rightExamples.map((e) => (
-              <li key={e} className="flex gap-2 text-sm text-navy-soft"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-positive" />{e}</li>
+          <SectionTitle><span className="text-positive flex items-center gap-2"><Target className="h-4 w-4" /> Where the Crowd Is Usually Right</span></SectionTitle>
+          <ul className="mt-3 space-y-2">
+            {["Beauty product demand forecasts", "Pet product adoption trends", "Home organization product lifecycles", "Seasonal product timing"].map((t, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-navy-soft"><span className="text-positive mt-1">•</span> {t}</li>
             ))}
           </ul>
         </div>
         <div className="surface-card p-6">
-          <div className="mb-4 flex items-center gap-2 text-negative"><XCircle className="h-5 w-5" /><h3 className="font-bold text-navy">Where the Crowd Is Usually Wrong</h3></div>
-          <ul className="space-y-2.5">
-            {wrongExamples.map((e) => (
-              <li key={e} className="flex gap-2 text-sm text-navy-soft"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-negative" />{e}</li>
+          <SectionTitle><span className="text-negative flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Where the Crowd Is Usually Wrong</span></SectionTitle>
+          <ul className="mt-3 space-y-2">
+            {["Viral gadget longevity forecasts", "Extreme price-point predictions", "Fad vs durable trend distinction", "Platform-specific trend transfers"].map((t, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-navy-soft"><span className="text-negative mt-1">•</span> {t}</li>
             ))}
           </ul>
         </div>
       </div>
 
-      {/* Crowd Wrong Alerts (premium) */}
-      <div className="mt-8 surface-card overflow-hidden border-premium/30 bg-premium-soft/40 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2"><Bell className="h-5 w-5 text-premium" /><h3 className="font-bold text-navy">Crowd Wrong Alerts</h3><span className="rounded-md bg-premium px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">Pro / Analyst</span></div>
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">Get notified when the crowd shows historical patterns associated with bad forecasts.</p>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {wrongAlerts.map((a) => (
-            <div key={a} className="flex items-center gap-2 rounded-xl border border-border bg-card/80 px-3 py-2.5 text-sm text-navy-soft"><AlertTriangle className="h-4 w-4 shrink-0 text-premium" />{a}</div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <UpgradeTeaser text="Unlock Crowd Wrong Alerts and historical category accuracy with Pro." />
-      </div>
+      <UpgradeTeaser text="Get Crowd Wrong Alerts — notified when historical patterns suggest the crowd is overconfident." />
     </AppLayout>
   );
 }

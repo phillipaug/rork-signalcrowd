@@ -8,6 +8,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/app/Dashboard";
+import ProductRadar from "./pages/app/ProductRadar";
+import TikTokGap from "./pages/app/TikTokGap";
+import ProductDetail from "./pages/app/ProductDetail";
 import Indexes from "./pages/app/Indexes";
 import IndexDetail from "./pages/app/IndexDetail";
 import Forecasts from "./pages/app/Forecasts";
@@ -17,6 +20,8 @@ import CreateForecast from "./pages/app/CreateForecast";
 import CrowdAccuracy from "./pages/app/CrowdAccuracy";
 import CrowdReliability from "./pages/app/CrowdReliability";
 import TrendsValidation from "./pages/app/TrendsValidation";
+import HypeRisk from "./pages/app/HypeRisk";
+import CreatorOpps from "./pages/app/CreatorOpps";
 import Briefings from "./pages/app/Briefings";
 import Reports from "./pages/app/Reports";
 import Leaderboards from "./pages/app/Leaderboards";
@@ -41,6 +46,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/app" element={<Dashboard />} />
+          <Route path="/app/products" element={<ProductRadar />} />
+          <Route path="/app/products/:id" element={<ProductDetail />} />
+          <Route path="/app/gap" element={<TikTokGap />} />
           <Route path="/app/indexes" element={<Indexes />} />
           <Route path="/app/indexes/:id" element={<IndexDetail />} />
           <Route path="/app/forecasts" element={<Forecasts />} />
@@ -50,6 +58,8 @@ const App = () => (
           <Route path="/app/accuracy" element={<CrowdAccuracy />} />
           <Route path="/app/reliability" element={<CrowdReliability />} />
           <Route path="/app/trends" element={<TrendsValidation />} />
+          <Route path="/app/hype-risk" element={<HypeRisk />} />
+          <Route path="/app/creators" element={<CreatorOpps />} />
           <Route path="/app/briefings" element={<Briefings />} />
           <Route path="/app/reports" element={<Reports />} />
           <Route path="/app/leaderboards" element={<Leaderboards />} />
@@ -62,7 +72,6 @@ const App = () => (
           <Route path="/app/admin" element={<Admin />} />
           <Route path="/app/trust" element={<Trust />} />
           <Route path="/app/methodology" element={<Methodology />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

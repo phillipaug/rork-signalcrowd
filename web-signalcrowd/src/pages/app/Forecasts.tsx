@@ -1,130 +1,81 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/ui-kit/Primitives";
-import { ForecastCard } from "@/components/signal/ForecastCard";
-import { forecasts, CATEGORIES } from "@/data/mock";
+import { PageHeader, SectionTitle } from "@/components/ui-kit/Primitives";
+import { ReliabilityBadge, ValidationBadge, HypeBadge, Delta, CategoryChip, TrendBadge } from "@/components/signal/SignalBadges";
+import { forecasts, products } from "@/data/mock";
 import type { Category } from "@/data/types";
-import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 
-type FilterKey =
-  | "trending"
-  | "most"
-  | "movers"
-  | "reliable"
-  | "controversial"
-  | "radar"
-  | "hype"
-  | "expert"
-  | "closing"
-  | "new";
-
-const filters: { key: FilterKey; label: string }[] = [
-  { key: "trending", label: "Trending" },
-  { key: "most", label: "Most forecasted" },
-  { key: "movers", label: "Biggest movers" },
-  { key: "reliable", label: "Highest reliability" },
-  { key: "controversial", label: "Most controversial" },
-  { key: "radar", label: "Under the radar" },
-  { key: "hype", label: "High hype risk" },
-  { key: "expert", label: "Expert disagreement" },
-  { key: "closing", label: "Closing soon" },
-  { key: "new", label: "Newly added" },
-];
+const catFilterOptions = ["All", "Commerce", "AI", "Crypto", "Economy", "Housing", "Startups", "Geopolitics", "Energy"] as const;
 
 export default function Forecasts() {
-  const [filter, setFilter] = useState<FilterKey>("trending");
-  const [cat, setCat] = useState<Category | "All">("All");
+  const [search, setSearch] = useState("");
+  const [cat, setCat] = useState<typeof catFilterOptions[number]>("All");
 
-  const list = useMemo(() => {
-    let l = [...forecasts];
-    if (cat !== "All") l = l.filter((f) => f.category === cat);
-    switch (filter) {
-      case "most":
-        l.sort((a, b) => b.forecastCount - a.forecastCount);
-        break;
-      case "movers":
-        l.sort((a, b) => Math.abs(b.trend7d) - Math.abs(a.trend7d));
-        break;
-      case "reliable":
-        l = l.filter((f) => f.reliabilityLabel === "Reliable Signal");
-        break;
-      case "controversial":
-        l = l.filter((f) => f.probability >= 40 && f.probability <= 60);
-        break;
-      case "radar":
-        l = l.filter((f) => f.trendsValidation === "Weak" && f.trend7d > 0);
-        break;
-      case "hype":
-        l = l.filter((f) => f.hypeRisk === "High" || f.hypeRisk === "Medium").sort((a, b) => b.searchMomentum - a.searchMomentum);
-        break;
-      case "expert":
-        l.sort((a, b) => Math.abs(b.expertProb - b.probability) - Math.abs(a.expertProb - a.probability));
-        break;
-      case "closing":
-        l = l.filter((f) => f.status === "Closing Soon");
-        break;
-      case "new":
-        l.reverse();
-        break;
-      default:
-        l.sort((a, b) => b.searchMomentum - a.searchMomentum);
-    }
-    return l;
-  }, [filter, cat]);
+  const filtered = useMemo(() => {
+    let list = [...forecasts];
+    if (search) list = list.filter(f => f.question.toLowerCase().includes(search.toLowerCase()));
+    if (cat !== "All") list = list.filter(f => f.category === cat);
+    list.sort((a, b) => Math.abs(b.trend7d) - Math.abs(a.trend7d));
+    return list;
+  }, [search, cat]);
 
   return (
     <AppLayout>
       <PageHeader
-        eyebrow="Forecast Feed"
-        title="What does the crowd think happens next?"
-        subtitle="Browse live crowd probabilities with reliability, trends-validation, and hype-risk signals on every card."
-        action={
-          <Link to="/app/forecasts/new" className="inline-flex items-center gap-1.5 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white transition-transform hover:scale-105">
-            <Plus className="h-4 w-4" /> New question
-          </Link>
-        }
+        eyebrow="Forecasts"
+        title="Forecast product and market outcomes."
+        subtitle="Predict product success, category momentum, and commerce trends. Build your forecasting track record. Demo data shown."
       />
 
-      {/* Category chips */}
-      <div className="mb-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-        {(["All", ...CATEGORIES] as const).map((c) => (
-          <button
-            key={c}
-            onClick={() => setCat(c)}
-            className={cn("shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors", cat === c ? "border-navy bg-navy text-white" : "border-border bg-card text-navy-soft hover:border-primary")}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {/* Filter chips */}
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-        {filters.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={cn("shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", filter === f.key ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-secondary")}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {list.length === 0 ? (
-        <div className="surface-card flex flex-col items-center justify-center p-12 text-center">
-          <p className="font-bold text-navy">No forecasts match these filters</p>
-          <p className="mt-1 text-sm text-muted-foreground">Try a different category or filter.</p>
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input placeholder="Search forecasts…" value={search} onChange={e => setSearch(e.target.value)} className="h-10 w-full rounded-xl border border-border bg-secondary/60 pl-10 pr-4 text-sm outline-none focus:border-primary" />
         </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((f) => (
-            <ForecastCard key={f.id} f={f} />
+        <div className="flex gap-1.5 flex-wrap">
+          {catFilterOptions.map(c => (
+            <button key={c} onClick={() => setCat(c)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${cat === c ? "bg-navy text-white" : "bg-secondary text-navy-soft hover:bg-secondary/70"}`}>{c === "All" ? "All Categories" : c}</button>
           ))}
         </div>
-      )}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map(f => {
+          const linkedProduct = f.productId ? products.find(p => p.id === f.productId) : null;
+          return (
+            <Link key={f.id} to={`/app/forecasts/${f.id}`} className="surface-card surface-card-hover p-5">
+              <div className="flex items-start justify-between mb-2">
+                <CategoryChip category={f.category} />
+                <Delta value={f.trend7d} suffix="%" />
+              </div>
+              <p className="text-sm font-semibold text-navy line-clamp-2 mb-3">{f.question}</p>
+              <div className="flex items-baseline gap-2 mb-3">
+                <span className="font-mono-num text-3xl font-bold tracking-tight text-navy">{f.probability}</span>
+                <span className="text-xs text-muted-foreground">% probability</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                <ReliabilityBadge label={f.reliabilityLabel} />
+                <ValidationBadge value={f.trendsValidation} />
+                <HypeBadge value={f.hypeRisk} />
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{f.forecastCount.toLocaleString()} forecasts</span>
+                <span>{f.resolutionDate}</span>
+              </div>
+              {linkedProduct && (
+                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-accent text-[10px] font-bold text-electric">{linkedProduct.name.charAt(0)}</div>
+                  <span className="text-xs text-muted-foreground">{linkedProduct.name}</span>
+                  <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground" />
+                </div>
+              )}
+            </Link>
+          );
+        })}
+      </div>
     </AppLayout>
   );
 }

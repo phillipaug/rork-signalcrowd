@@ -1,181 +1,149 @@
-import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { SectionTitle, UpgradeTeaser, LockedOverlay } from "@/components/ui-kit/Primitives";
 import { AreaChart } from "@/components/charts/AreaChart";
-import { getIndex, indexes } from "@/data/mock";
-import { Delta, GradeBadge, ValidationBadge, CategoryChip } from "@/components/signal/SignalBadges";
-import { LockedOverlay, ProgressBar } from "@/components/ui-kit/Primitives";
-import { formatCompact } from "@/lib/format";
-import { ArrowLeft, Sparkles, TrendingUp, TrendingDown, Users, Target, Search } from "lucide-react";
-import NotFound from "../NotFound";
-import { cn } from "@/lib/utils";
+import { Delta, GradeBadge, TrendBadge } from "@/components/signal/SignalBadges";
+import { getCommerceIndex, products } from "@/data/mock";
+import { ArrowRight, TrendingUp, AlertTriangle, Package, ShoppingBag } from "lucide-react";
 
 export default function IndexDetail() {
-  const { id } = useParams();
-  const idx = id ? getIndex(id) : undefined;
-  const [range, setRange] = useState<"90d" | "1y">("90d");
-  if (!idx) return <NotFound />;
+  const { id } = useParams<{ id: string }>();
+  const idx = getCommerceIndex(id || "");
 
-  const chartData = range === "90d" ? idx.trendData.slice(-30) : idx.trendData;
-  const related = indexes.filter((i) => i.id !== idx.id).slice(0, 3);
+  if (!idx) {
+    return (
+      <AppLayout>
+        <div className="py-20 text-center">
+          <p className="text-lg font-bold text-navy">Index not found</p>
+          <Link to="/app/indexes" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-electric">Back to Indexes <ArrowRight className="h-3.5 w-3.5" /></Link>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
-      <Link to="/app/indexes" className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-navy">
-        <ArrowLeft className="h-4 w-4" /> All indexes
-      </Link>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          {/* Header */}
-          <div className="surface-card p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <CategoryChip category={idx.category} />
-                <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-navy">{idx.name}</h1>
-                <p className="mt-1 max-w-lg text-sm text-muted-foreground">{idx.description}</p>
-              </div>
-              <GradeBadge grade={idx.reliabilityGrade} className="!text-base" />
-            </div>
-
-            <div className="mt-5 flex items-end gap-4">
+      {/* Header */}
+      <div className="mb-6">
+        <Link to="/app/indexes" className="text-xs font-semibold text-muted-foreground hover:text-electric mb-2 inline-block">Category Indexes</Link>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-navy sm:text-3xl">{idx.name}</h1>
+            <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{idx.description}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <div className="flex items-baseline gap-2">
               <span className="font-mono-num text-5xl font-bold tracking-tighter text-navy">{idx.score}</span>
-              <span className="mb-2 text-muted-foreground">/ 100</span>
-              <div className="mb-1.5 flex flex-col text-xs">
-                <span className="text-muted-foreground">7d <Delta value={idx.weeklyChange} /></span>
-                <span className="text-muted-foreground">30d <Delta value={idx.monthlyChange} /></span>
-              </div>
+              <span className="text-lg text-muted-foreground">/ 100</span>
             </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <ValidationBadge value={idx.trendsValidation} />
-              <div className="inline-flex rounded-lg border border-border p-0.5">
-                {(["90d", "1y"] as const).map((r) => (
-                  <button key={r} onClick={() => setRange(r)} className={cn("rounded-md px-3 py-1 text-xs font-semibold", range === r ? "bg-navy text-white" : "text-muted-foreground")}>
-                    {r === "90d" ? "90 days" : "1 year"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <AreaChart data={chartData} height={220} className="mt-3" />
-          </div>
-
-          {/* AI summary */}
-          <div className="surface-card mt-6 p-6">
-            <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-electric" />
-              <h2 className="font-bold text-navy">AI Summary</h2>
-            </div>
-            <p className="text-sm leading-relaxed text-navy-soft">{idx.summary}</p>
-          </div>
-
-          {/* Top drivers */}
-          <div className="surface-card mt-6 p-6">
-            <h2 className="mb-4 font-bold text-navy">Top Contributing Forecasts</h2>
-            <div className="space-y-4">
-              {idx.drivers.map((d, i) => (
-                <div key={i}>
-                  <div className="mb-1.5 flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium text-navy">{d.text}</span>
-                    <span className="font-mono-num text-sm font-bold text-electric">{d.prob}%</span>
-                  </div>
-                  <ProgressBar value={d.prob} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Movers */}
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            <div className="surface-card p-6">
-              <div className="mb-3 flex items-center gap-2 text-positive"><TrendingUp className="h-4 w-4" /><h3 className="font-bold text-navy">Top Upward Movers</h3></div>
-              {idx.drivers.slice(0, 3).map((d, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
-                  <span className="line-clamp-1 text-navy-soft">{d.text}</span>
-                  <Delta value={4 + i} suffix="%" />
-                </div>
-              ))}
-            </div>
-            <div className="surface-card p-6">
-              <div className="mb-3 flex items-center gap-2 text-negative"><TrendingDown className="h-4 w-4" /><h3 className="font-bold text-navy">Top Downward Movers</h3></div>
-              {idx.drivers.slice(1, 4).reverse().map((d, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0">
-                  <span className="line-clamp-1 text-navy-soft">{d.text}</span>
-                  <Delta value={-(2 + i)} suffix="%" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Premium locked */}
-          <div className="mt-6">
-            <h2 className="mb-3 font-bold text-navy">Signal Quality Analysis</h2>
-            <LockedOverlay title="Advanced analytics — Pro" description="See whether the crowd is usually right here, if the move is backed by search data, expert alignment, and overheating risk.">
-              <div className="surface-card grid gap-4 p-6 sm:grid-cols-2">
-                {["Is the crowd usually right in this category?", "Is the current move backed by search data?", "Are expert forecasters aligned with general users?", "Is this index overheated or underappreciated?"].map((q) => (
-                  <div key={q} className="rounded-xl border border-border bg-secondary/40 p-4">
-                    <p className="text-sm font-semibold text-navy">{q}</p>
-                    <p className="mt-2 text-sm text-muted-foreground">Detailed answer with supporting data…</p>
-                  </div>
-                ))}
-              </div>
-            </LockedOverlay>
+            <Delta value={idx.weeklyChange} className="text-lg" />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Monthly: <Delta value={idx.monthlyChange} className="text-sm" />
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Sidebar stats */}
-        <div className="space-y-4">
-          <div className="surface-card p-5">
-            <h3 className="mb-3 text-sm font-bold text-navy">Index Stats</h3>
-            <div className="space-y-3">
-              <SideStat icon={Users} label="Forecast volume" value={formatCompact(idx.forecastVolume)} />
-              <SideStat icon={Target} label="Crowd accuracy" value={`${idx.crowdAccuracy}%`} />
-              <SideStat icon={Search} label="Trends validation" value={idx.trendsValidation} />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Chart */}
+          <div className="surface-card p-6">
+            <SectionTitle>90-Day Momentum</SectionTitle>
+            <AreaChart data={idx.trendData} height={220} className="mt-2" />
+          </div>
+
+          {/* Summary */}
+          <div className="surface-card p-6">
+            <SectionTitle>AI Summary</SectionTitle>
+            <p className="mt-2 text-sm text-navy-soft leading-relaxed">{idx.summary}</p>
+          </div>
+
+          {/* Top products */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="surface-card p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-positive mb-3">Top Rising</p>
+              {idx.topRising.map((name, i) => {
+                const p = products.find(pr => pr.name === name);
+                return (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                    <Link to={p ? `/app/products/${p.id}` : "#"} className="text-xs font-medium text-navy hover:text-electric">{name}</Link>
+                    {p && <span className="font-mono-num text-xs font-bold text-navy">{p.opportunityScore}</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="surface-card p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-negative mb-3">Top Saturated</p>
+              {idx.topSaturated.map((name, i) => {
+                const p = products.find(pr => pr.name === name);
+                return (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                    <Link to={p ? `/app/products/${p.id}` : "#"} className="text-xs font-medium text-navy hover:text-electric">{name}</Link>
+                    {p && <span className="font-mono-num text-xs font-bold text-negative">{p.saturationScore}</span>}
+                  </div>
+                );
+              })}
+              {idx.topSaturated.length === 0 && <p className="text-xs text-muted-foreground py-2">No heavily saturated products.</p>}
+            </div>
+            <div className="surface-card p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-violet mb-3">Top Creator-Led</p>
+              {idx.topCreatorLed.map((name, i) => {
+                const p = products.find(pr => pr.name === name);
+                return (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                    <Link to={p ? `/app/products/${p.id}` : "#"} className="text-xs font-medium text-navy hover:text-electric">{name}</Link>
+                    {p && <span className="font-mono-num text-xs font-bold text-violet">Creator</span>}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div className="surface-card p-5">
-            <h3 className="mb-2 text-sm font-bold text-navy">Expert vs General Crowd</h3>
-            <div className="space-y-3">
-              <div>
-                <div className="mb-1 flex justify-between text-xs"><span className="text-muted-foreground">Expert forecasters</span><span className="font-mono-num font-bold text-navy">{idx.score + 3}</span></div>
-                <ProgressBar value={idx.score + 3} color="hsl(var(--violet))" />
+          {/* Locked: Advanced analytics */}
+          <LockedOverlay title="Advanced Category Analytics" description="Unlock product-level forecasts, saturation trends, and regional comparison data.">
+            <div className="surface-card p-6">
+              <SectionTitle>Advanced Analytics</SectionTitle>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {["Weekly forecast model", "Regional demand heatmap", "Saturation projection", "Margin trend analysis"].map(t => (
+                  <div key={t} className="rounded-xl border border-border bg-secondary/40 p-4">
+                    <p className="text-sm font-semibold text-navy">{t}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Pro feature — unlock to access</p>
+                  </div>
+                ))}
               </div>
-              <div>
-                <div className="mb-1 flex justify-between text-xs"><span className="text-muted-foreground">General crowd</span><span className="font-mono-num font-bold text-navy">{idx.score}</span></div>
-                <ProgressBar value={idx.score} />
+            </div>
+          </LockedOverlay>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          <div className="surface-card p-5">
+            <SectionTitle>At a Glance</SectionTitle>
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Opportunities</span>
+                <span className="font-mono-num font-bold text-navy">{idx.opportunityCount.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Saturation Risk</span>
+                <span className={`font-semibold text-xs ${idx.saturationRisk === "Low" ? "text-positive" : idx.saturationRisk === "Medium" ? "text-premium" : "text-negative"}`}>{idx.saturationRisk}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><ShoppingBag className="h-3 w-3" /> Avg Margin</span>
+                <span className={`font-semibold text-xs ${idx.avgMargin === "Good" ? "text-positive" : idx.avgMargin === "Medium" ? "text-electric" : "text-negative"}`}>{idx.avgMargin}</span>
               </div>
             </div>
           </div>
 
-          <div className="surface-card p-5">
-            <h3 className="mb-3 text-sm font-bold text-navy">Related Indexes</h3>
-            <div className="space-y-1">
-              {related.map((r) => (
-                <Link key={r.id} to={`/app/indexes/${r.id}`} className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-secondary">
-                  <span className="text-sm text-navy-soft">{r.name.replace(" Index", "")}</span>
-                  <span className="font-mono-num text-sm font-bold text-navy">{r.score}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <Link to="/app/reports" className="surface-card surface-card-hover block bg-premium-soft/50 p-5">
-            <Sparkles className="h-5 w-5 text-premium" />
-            <p className="mt-2 font-bold text-navy">Get the full {idx.category} report</p>
-            <p className="mt-1 text-sm text-muted-foreground">Investor-grade analysis, updated weekly.</p>
+          <Link to="/app/products" className="block surface-card surface-card-hover p-5 text-center">
+            <Package className="mx-auto h-6 w-6 text-electric" />
+            <p className="mt-2 font-semibold text-navy text-sm">View Products</p>
+            <p className="mt-1 text-xs text-muted-foreground">Browse all products in this category</p>
           </Link>
+
+          <UpgradeTeaser text="Get weekly category reports with product recommendations." />
         </div>
       </div>
     </AppLayout>
-  );
-}
-
-function SideStat({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="inline-flex items-center gap-2 text-sm text-muted-foreground"><Icon className="h-4 w-4" /> {label}</span>
-      <span className="font-mono-num text-sm font-bold text-navy">{value}</span>
-    </div>
   );
 }

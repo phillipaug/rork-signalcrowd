@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 import { Search, Sparkles, Menu, X } from "lucide-react";
 import { PremiumBadge } from "@/components/signal/SignalBadges";
 
-const groups: ("Intelligence" | "Community" | "Business" | "Account")[] = [
+const groups: ("Commerce" | "Intelligence" | "Community" | "Business" | "Account")[] = [
+  "Commerce",
   "Intelligence",
   "Community",
   "Business",
@@ -111,13 +112,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <div className="relative hidden flex-1 max-w-md md:block">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
-              placeholder="Search forecasts, indexes, forecasters…"
+              placeholder="Search products, forecasts, indexes…"
               className="h-10 w-full rounded-xl border border-border bg-secondary/60 pl-10 pr-4 text-sm outline-none transition-colors focus:border-primary focus:bg-card"
             />
           </div>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden items-center gap-1.5 rounded-full bg-positive-soft px-3 py-1 text-xs font-semibold text-positive sm:inline-flex">
-              <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse-dot" /> Live demo data
+              <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse-dot" /> Demo data
             </span>
             <Link to="/app/pricing">
               <PremiumBadge label="Free plan" className="hidden bg-secondary !text-navy-soft sm:inline-flex" />

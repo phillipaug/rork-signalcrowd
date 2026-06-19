@@ -1,87 +1,94 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/ui-kit/Primitives";
-import { Bell, Plus, Lock, TrendingUp, TrendingDown, Activity, Flame, Search, Users, FileText } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { PageHeader, SectionTitle, UpgradeTeaser } from "@/components/ui-kit/Primitives";
+import { products } from "@/data/mock";
+import { Bell, BellOff, ArrowRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const alertTypes = [
-  { icon: TrendingUp, label: "Probability crosses 70%", free: true },
-  { icon: TrendingDown, label: "Probability drops below 40%", free: true },
-  { icon: Activity, label: "Index changes by more than 5 points", free: true },
-  { icon: Activity, label: "Crowd Reliability changes", free: false },
-  { icon: Flame, label: "Hype Risk becomes high", free: false },
-  { icon: Search, label: "Trends Validation strengthens", free: false },
-  { icon: Users, label: "Expert forecasters diverge from crowd", free: false },
-  { icon: Bell, label: "Favorite forecaster updates a prediction", free: false },
-  { icon: FileText, label: "New report is published", free: false },
+  "Product Opportunity Score crosses 80",
+  "TikTok Momentum increases sharply",
+  "Amazon Saturation becomes high",
+  "Trends Validation strengthens",
+  "Hype Risk becomes high",
+  "Margin potential declines",
+  "Product moves from Emerging to Breakout",
+  "Product enters TikTok-to-Amazon Gap list",
+  "Category index moves by more than 5 points",
+  "New report published",
+];
+
+const demoAlerts = [
+  { productName: "Heatless Curling Kit", type: "Score crosses 80", triggered: true, date: "Jun 18, 2026" },
+  { productName: "Portable Blender", type: "Hype Risk becomes high", triggered: true, date: "Jun 17, 2026" },
+  { productName: "Reusable Water Balloons", type: "Entered TikTok Gap list", triggered: true, date: "Jun 16, 2026" },
 ];
 
 export default function Alerts() {
-  const [active, setActive] = useState<Record<number, boolean>>({ 0: true, 2: true });
-  const freeUsed = Object.entries(active).filter(([, v]) => v).length;
-
-  function toggle(i: number, free: boolean) {
-    if (!free) {
-      toast.error("This alert is a Pro feature", { description: "Upgrade to unlock advanced alerts." });
-      return;
-    }
-    setActive((p) => {
-      const next = { ...p, [i]: !p[i] };
-      const count = Object.values(next).filter(Boolean).length;
-      if (count > 3) {
-        toast.error("Free plan allows 3 alerts", { description: "Upgrade to Pro for unlimited alerts." });
-        return p;
-      }
-      return next;
-    });
-  }
+  const [showNewForm, setShowNewForm] = useState(false);
 
   return (
     <AppLayout>
       <PageHeader
         eyebrow="Alerts"
-        title="Never miss a signal move"
-        subtitle="Free members get 3 alerts. Pro unlocks unlimited alerts; Analyst adds advanced expert-divergence and validation alerts."
-        action={
-          <span className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-navy">
-            <Bell className="h-4 w-4 text-electric" /> {freeUsed} / 3 active
-          </span>
-        }
+        title="Get notified when product signals change."
+        subtitle="Set alerts for products and categories. Free: 3 alerts. Starter: 15 alerts. Pro: unlimited."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {alertTypes.map((a, i) => {
-          const Icon = a.icon;
-          const on = active[i];
-          return (
-            <button
-              key={a.label}
-              onClick={() => toggle(i, a.free)}
-              className={cn("surface-card flex items-center gap-3 p-4 text-left transition-colors", on && "ring-2 ring-electric/40")}
-            >
-              <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", on ? "bg-accent" : "bg-secondary")}>
-                <Icon className={cn("h-5 w-5", on ? "text-electric" : "text-muted-foreground")} />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-navy">{a.label}</p>
-                {!a.free && <span className="text-xs font-bold uppercase text-premium">Pro</span>}
-              </div>
-              {a.free ? (
-                <span className={cn("relative h-6 w-11 rounded-full transition-colors", on ? "bg-electric" : "bg-secondary")}>
-                  <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", on ? "left-[22px]" : "left-0.5")} />
-                </span>
-              ) : (
-                <Lock className="h-4 w-4 text-premium" />
-              )}
-            </button>
-          );
-        })}
+      {/* Active alerts */}
+      <SectionTitle action={<button onClick={() => setShowNewForm(!showNewForm)} className="flex items-center gap-1 text-sm font-semibold text-electric"><Plus className="h-4 w-4" /> New Alert</button>}>
+        Active Alerts ({demoAlerts.length})
+      </SectionTitle>
+
+      {showNewForm && (
+        <div className="surface-card p-5 mb-4">
+          <p className="text-sm font-semibold text-navy mb-3">Create Alert</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <select className="h-10 rounded-xl border border-border bg-card px-3 text-sm outline-none focus:border-primary">
+              {products.slice(0, 10).map(p => <option key={p.id}>{p.name}</option>)}
+            </select>
+            <select className="h-10 rounded-xl border border-border bg-card px-3 text-sm outline-none focus:border-primary">
+              {alertTypes.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <button onClick={() => { toast.success("Alert created! (demo)"); setShowNewForm(false); }} className="mt-3 rounded-lg bg-electric px-4 py-2 text-xs font-bold text-white">Save Alert</button>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {demoAlerts.map((a, i) => (
+          <div key={i} className="surface-card flex items-center gap-4 p-4">
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${a.triggered ? "bg-positive-soft" : "bg-muted"}`}>
+              {a.triggered ? <Bell className="h-4 w-4 text-positive" /> : <BellOff className="h-4 w-4 text-muted-foreground" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-navy">{a.productName}</p>
+              <p className="text-xs text-muted-foreground">{a.type}</p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-xs text-muted-foreground">{a.date}</p>
+              <span className={`text-[10px] font-semibold ${a.triggered ? "text-positive" : "text-muted-foreground"}`}>{a.triggered ? "Triggered" : "Watching"}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <button className="mt-6 inline-flex items-center gap-1.5 rounded-xl border border-dashed border-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:border-primary hover:text-navy">
-        <Plus className="h-4 w-4" /> Create a custom alert rule
-      </button>
+      {/* Alert types */}
+      <div className="mt-8">
+        <SectionTitle>Available Alert Types</SectionTitle>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {alertTypes.map(t => (
+            <div key={t} className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-navy-soft">
+              <Bell className="h-3 w-3 text-muted-foreground shrink-0" /> {t}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <UpgradeTeaser text="Unlock unlimited alerts, team alerts, and client alert forwarding." />
+      </div>
     </AppLayout>
   );
 }
